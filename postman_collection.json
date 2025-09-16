@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "CoderHouse Backend I - Entrega 1",
+    "_postman_id": "12345678-aaaa-bbbb-cccc-1234567890ab",
+    "description": "Colección de prueba para la API de productos y carritos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET /api/products",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/products"
+      }
+    },
+    {
+      "name": "GET /api/products/:pid",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/products/1"
+      }
+    },
+    {
+      "name": "POST /api/products",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Teclado Mec\\u00e1nico\", \"description\": \"Teclado 60% con switches rojos\", \"code\": \"KB-60R\", \"price\": 79999, \"status\": true, \"stock\": 25, \"category\": \"perifericos\", \"thumbnails\": [\"imgs/teclado-1.png\"]}"
+        },
+        "url": "http://localhost:8080/api/products"
+      }
+    },
+    {
+      "name": "PUT /api/products/:pid",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"price\": 75999}"
+        },
+        "url": "http://localhost:8080/api/products/1"
+      }
+    },
+    {
+      "name": "DELETE /api/products/:pid",
+      "request": {
+        "method": "DELETE",
+        "url": "http://localhost:8080/api/products/1"
+      }
+    },
+    {
+      "name": "POST /api/carts",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:8080/api/carts"
+      }
+    },
+    {
+      "name": "GET /api/carts/:cid",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/carts/1"
+      }
+    },
+    {
+      "name": "POST /api/carts/:cid/product/:pid",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:8080/api/carts/1/product/1"
+      }
+    }
+  ]
+}

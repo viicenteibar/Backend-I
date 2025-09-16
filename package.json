@@ -1,0 +1,25 @@
+{
+  "name": "coderhouse-backend1-entrega1",
+  "version": "1.0.0",
+  "description": "API de productos y carritos (Persistencia en FS) - CoderHouse Programación Backend I - Entrega 1",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "NODE_ENV=production node src/server.js"
+  },
+  "keywords": [
+    "express",
+    "coderhouse",
+    "backend",
+    "products",
+    "carts"
+  ],
+  "author": "Vicente Ibarzabal",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "morgan": "^1.10.0",
+    "nanoid": "^5.0.7"
+  }
+}
