@@ -1,0 +1,21 @@
+<h1>Contenido del Carrito ID: {{cart._id}}</h1>
+
+{{#if products.length}}
+<ul class="cart-list">
+    {{#each products}}
+        <li class="cart-item">
+            {{!-- Los detalles del producto están en 'product' gracias a populate --}}
+            <h3 class="item-title">{{this.product.title}}</h3>
+            <p>Precio Unitario: ${{this.product.price}}</p>
+            <p><strong>Cantidad:</strong> {{this.quantity}}</p>
+            <p>Subtotal: ${{math this.product.price '*' this.quantity}}</p>
+            
+        </li>
+    {{/each}}
+</ul>
+{{else}}
+<div class="empty-cart">
+    <p>Este carrito está vacío. Agrega algunos productos.</p>
+    <a href="/products" class="btn-products">Ver Productos</a>
+</div>
+{{/if}}

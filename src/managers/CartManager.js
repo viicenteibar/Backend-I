@@ -1,75 +1,95 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import ProductManager from './ProductManager.js';
-
-const DATA_DIR = path.resolve('src', 'data');
-const CARTS_FILE = path.join(DATA_DIR, 'carts.json');
+import { CartModel } from '../models/cart.model.js';
+import { ProductModel } from '../models/product.model.js'; 
 
 export default class CartManager {
-  constructor(filePath = CARTS_FILE) {
-    this.path = filePath;
-    this.productManager = new ProductManager();
-  }
-
-  async #readFile() {
-    try {
-      const data = await fs.readFile(this.path, 'utf-8');
-      return JSON.parse(data || '[]');
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        await this.#writeFile([]);
-        return [];
-      }
-      throw err;
-    }
-  }
-
-  async #writeFile(data) {
-    await fs.mkdir(path.dirname(this.path), { recursive: true });
-    await fs.writeFile(this.path, JSON.stringify(data, null, 2), 'utf-8');
-  }
-
-  #getNextId(items) {
-    const maxId = items.reduce((max, it) => Math.max(max, Number(it.id) || 0), 0);
-    return String(maxId + 1);
-  }
-
-  async createCart() {
-    const carts = await this.#readFile();
-    const newCart = { id: this.#getNextId(carts), products: [] };
-    carts.push(newCart);
-    await this.#writeFile(carts);
-    return newCart;
-  }
-
-  async getCartById(cid) {
-    const carts = await this.#readFile();
-    return carts.find(c => String(c.id) === String(cid)) || null;
-  }
-
-  async addProductToCart(cid, pid) {
-    const carts = await this.#readFile();
-    const cartIdx = carts.findIndex(c => String(c.id) === String(cid));
-    if (cartIdx === -1) {
-      const err = new Error('Carrito no encontrado'); err.status = 404; throw err;
+    
+    // 1. Crear un carrito
+    async createCart() {
+        return CartModel.create({});
     }
 
-    // validar que exista el producto
-    const product = await this.productManager.getProductById(pid);
-    if (!product) {
-      const err = new Error('Producto no encontrado'); err.status = 404; throw err;
+    // 2. Obtener carrito por ID (con POPULATE)
+    async getCartById(cid) {
+        return CartModel.findById(cid).populate('products.product').lean();
     }
 
-    const cart = carts[cartIdx];
-    const prodIdx = cart.products.findIndex(p => String(p.product) === String(pid));
-    if (prodIdx === -1) {
-      cart.products.push({ product: String(pid), quantity: 1 });
-    } else {
-      cart.products[prodIdx].quantity += 1;
+    // 3. Agregar producto al carrito (o incrementar cantidad)
+    async addProductToCart(cid, pid) {
+        // Validación de IDs
+        const cart = await CartModel.findById(cid);
+        if (!cart) {
+            const err = new Error('Carrito no encontrado'); err.status = 404; throw err;
+        }
+        const productExists = await ProductModel.findById(pid);
+        if (!productExists) {
+            const err = new Error('Producto no encontrado'); err.status = 404; throw err;
+        }
+        
+        // Buscar si el producto ya existe en el array del carrito
+        const existingProduct = cart.products.find(p => p.product.toString() === pid);
+        
+        if (existingProduct) {
+            // Si existe, incrementa la cantidad
+            existingProduct.quantity += 1;
+        } else {
+            // Si no existe, lo agrega con quantity: 1
+            cart.products.push({ product: pid, quantity: 1 });
+        }
+        
+        await cart.save();
+        return cart;
     }
 
-    carts[cartIdx] = cart;
-    await this.#writeFile(carts);
-    return cart;
-  }
+    // 4. DELETE Eliminar producto del carrito
+    async removeProductFromCart(cid, pid) {
+        const result = await CartModel.findByIdAndUpdate(
+            cid,
+            { $pull: { products: { product: pid } } }, 
+            { new: true } // Devuelve el documento después de la actualización
+        );
+        if (!result) {
+            const err = new Error('Carrito no encontrado'); err.status = 404; throw err;
+        }
+        return result;
+    }
+
+    // 5. PUT Actualizar todos los productos del carrito
+    async updateAllProducts(cid, productsArray) {
+        const result = await CartModel.findByIdAndUpdate(
+            cid,
+            { products: productsArray }, // Reemplaza completamente el array 'products'
+            { new: true }
+        );
+        if (!result) {
+            const err = new Error('Carrito no encontrado'); err.status = 404; throw err;
+        }
+        return result;
+    }
+
+    // 6. PUT Actualizar SÓLO la cantidad de un producto
+    async updateProductQuantity(cid, pid, quantity) {
+        const result = await CartModel.findOneAndUpdate(
+            { _id: cid, 'products.product': pid },
+            { $set: { 'products.$.quantity': quantity } },
+            { new: true }
+        );
+        if (!result) {
+            // Error más específico si no se encuentra el carrito o el producto dentro del carrito
+            const err = new Error('Carrito o Producto no encontrado en el carrito'); err.status = 404; throw err;
+        }
+        return result;
+    }
+
+    // 7. DELETE Eliminar todos los productos del carrito
+    async clearCart(cid) {
+        const result = await CartModel.findByIdAndUpdate(
+            cid,
+            { $set: { products: [] } }, // Establece el array 'products' como vacío
+            { new: true }
+        );
+        if (!result) {
+            const err = new Error('Carrito no encontrado'); err.status = 404; throw err;
+        }
+        return result;
+    }
 }

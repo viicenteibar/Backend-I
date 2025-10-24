@@ -1,0 +1,38 @@
+<h1>Explorador de Productos (Paginado)</h1>
+
+<p>Página {{pagination.page}} de {{pagination.totalPages}}.</p>
+
+<div class="pagination-controls">
+    {{#if pagination.hasPrevPage}}
+        <a href="{{pagination.prevLink}}" class="btn-page">← Anterior</a>
+    {{else}}
+        <span class="btn-page disabled">← Anterior</span>
+    {{/if}}
+
+    {{#if pagination.hasNextPage}}
+        <a href="{{pagination.nextLink}}" class="btn-page">Siguiente →</a>
+    {{else}}
+        <span class="btn-page disabled">Siguiente →</span>
+    {{/if}}
+</div>
+
+<div class="products-grid">
+    {{#each products}}
+        <div class="product-card">
+            <h2>{{this.title}}</h2>
+            <p><strong>Categoría:</strong> {{this.category}}</p>
+            <p>{{this.description}}</p>
+            <p class="price">Precio: ${{this.price}}</p>
+            <p>Stock: {{this.stock}}</p>
+
+            <button 
+                class="btn-add-cart" 
+                data-product-id="{{this._id}}" 
+                data-cart-id="[TU_CART_ID_AQUI]">
+                Agregar al Carrito
+            </button>
+        </div>
+    {{/each}}
+</div>
+
+<script src="/js/products.js"></script>
