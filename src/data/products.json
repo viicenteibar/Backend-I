@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "1",
+    "title": "Notebook Gamer",
+    "description": "Portátil de alto rendimiento con RTX 4070.",
+    "code": "NB001",
+    "price": 1200.50,
+    "status": true,
+    "stock": 15,
+    "category": "Electrónica",
+    "thumbnails": ["ruta/img1.jpg", "ruta/img2.jpg"]
+  },
+  {
+    "id": "2",
+    "title": "Teclado Mecánico RGB",
+    "description": "Teclado con switches Cherry MX Red e iluminación RGB.",
+    "code": "TC002",
+    "price": 85.99,
+    "status": true,
+    "stock": 30,
+    "category": "Periféricos",
+    "thumbnails": []
+  }
+]
