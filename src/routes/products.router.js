@@ -31,11 +31,17 @@ router.get('/:pid', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const created = await pm.addProduct(req.body);
+    
+    // ⚠️ EMITIR EVENTO SOCKET DESPUÉS DE LA CREACIÓN
+    const io = req.io;
+    const products = await pm.getProducts();
+    io.emit('updateProducts', products); // Notifica a todos los clientes
+    
     res.status(201).json(created);
   } catch (err) {
-    console.error(err);
-    res.status(err.status || 500).json({ error: err.message || 'Error al crear producto' });
-  }
+  console.error(err);
+  res.status(err.status || 500).json({ error: err.message || 'Error al crear producto' });
+ }
 });
 
 // PUT /api/products/:pid
@@ -51,13 +57,19 @@ router.put('/:pid', async (req, res) => {
 
 // DELETE /api/products/:pid
 router.delete('/:pid', async (req, res) => {
-  try {
-    const deleted = await pm.deleteProduct(req.params.pid);
-    res.json({ deleted });
-  } catch (err) {
-    console.error(err);
-    res.status(err.status || 500).json({ error: err.message || 'Error al eliminar producto' });
-  }
+ try {
+  const deleted = await pm.deleteProduct(req.params.pid);
+
+    // ⚠️ EMITIR EVENTO SOCKET DESPUÉS DE LA ELIMINACIÓN
+    const io = req.io;
+    const products = await pm.getProducts();
+    io.emit('updateProducts', products); // Notifica a todos los clientes
+
+  res.json({ deleted });
+ } catch (err) {
+  console.error(err);
+  res.status(err.status || 500).json({ error: err.message || 'Error al eliminar producto' });
+ }
 });
 
 export default router;
